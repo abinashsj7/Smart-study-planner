@@ -1,64 +1,72 @@
-let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
-
-function renderTasks() {
-  const taskList = document.getElementById("taskList");
-  taskList.innerHTML = "";
-
-  tasks.forEach((task, index) => {
-    const li = document.createElement("li");
-    li.className = task.completed ? "completed" : "";
-
-    li.innerHTML = `
-      <span onclick="toggleTask(${index})">${task.text} - <small>${task.date}</small></span>
-      <button class="delete-btn" onclick="deleteTask(${index})">X</button>
-    `;
-
-    taskList.appendChild(li);
-  });
-
-  updateProgress();
-  localStorage.setItem("tasks", JSON.stringify(tasks));
+// Live Clock
+function updateClock() {
+  const now = new Date();
+  const time = now.toLocaleTimeString();
+  const date = now.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+  document.getElementById("clock").textContent = `${time} – ${date}`;
 }
+setInterval(updateClock, 1000);
+updateClock();
 
-function addTask() {
-  const taskInput = document.getElementById("taskInput");
-  const dateInput = document.getElementById("dateInput");
+// Add Task Logic
+const taskInput = document.getElementById("taskInput");
+const timeInput = document.getElementById("timeInput");
+const addBtn = document.getElementById("addBtn");
+const taskList = document.getElementById("taskList");
 
-  if (taskInput.value.trim() === "" || dateInput.value === "") {
-    alert("Please enter a task and date!");
+// Load saved tasks from LocalStorage
+let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+renderTasks();
+
+addBtn.addEventListener("click", () => {
+  const taskText = taskInput.value.trim();
+  const taskTime = timeInput.value;
+  if (!taskText || !taskTime) {
+    alert("Please enter a task and select a time.");
     return;
   }
 
-  tasks.push({ text: taskInput.value, date: dateInput.value, completed: false });
-  taskInput.value = "";
-  dateInput.value = "";
-
+  const task = { text: taskText, time: taskTime, done: false };
+  tasks.push(task);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
   renderTasks();
+
+  taskInput.value = "";
+  timeInput.value = "";
+});
+
+function renderTasks() {
+  taskList.innerHTML = "";
+  tasks.forEach((task, index) => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <span class="${task.done ? 'done' : ''}">${task.text} <small>@ ${formatTime(task.time)}</small></span>
+      <div>
+        <button onclick="toggleDone(${index})">✔</button>
+        <button onclick="deleteTask(${index})">❌</button>
+      </div>
+    `;
+    taskList.appendChild(li);
+  });
 }
 
-function toggleTask(index) {
-  tasks[index].completed = !tasks[index].completed;
+function toggleDone(index) {
+  tasks[index].done = !tasks[index].done;
+  localStorage.setItem("tasks", JSON.stringify(tasks));
   renderTasks();
 }
 
 function deleteTask(index) {
   tasks.splice(index, 1);
+  localStorage.setItem("tasks", JSON.stringify(tasks));
   renderTasks();
 }
 
-function updateProgress() {
-  if (tasks.length === 0) {
-    document.getElementById("progressText").textContent = "Progress: 0%";
-    document.getElementById("progressFill").style.width = "0%";
-    return;
-  }
-
-  const completedTasks = tasks.filter(t => t.completed).length;
-  const progress = Math.round((completedTasks / tasks.length) * 100);
-
-  document.getElementById("progressText").textContent = `Progress: ${progress}%`;
-  document.getElementById("progressFill").style.width = `${progress}%`;
+// Format time to AM/PM
+function formatTime(timeStr) {
+  const [hour, minute] = timeStr.split(":");
+  let h = parseInt(hour);
+  const ampm = h >= 12 ? "PM" : "AM";
+  h = h % 12 || 12;
+  return `${h}:${minute} ${ampm}`;
 }
-
-// Initial render
-renderTasks();
