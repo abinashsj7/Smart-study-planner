@@ -3,28 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Smart Study Planner</title>
+  <title>StudySphere: Smart Study Scheduler</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="container">
-    <h1>📘 Smart Study Planner</h1>
+  <header>
+    <h1>📚 StudySphere: Smart Study Scheduler</h1>
+    <div id="clock"></div>
+  </header>
 
-    <div class="task-input">
-      <input type="text" id="taskInput" placeholder="Enter study task..." />
-      <input type="date" id="dateInput" />
-      <button onclick="addTask()">Add Task</button>
-    </div>
+  <main>
+    <section class="task-form">
+      <input type="text" id="taskInput" placeholder="Enter your task">
+      <input type="time" id="timeInput">
+      <button id="addBtn">Add Task</button>
+    </section>
 
-    <ul id="taskList"></ul>
+    <section>
+      <h2>My Study Plan</h2>
+      <ul id="taskList"></ul>
+    </section>
+  </main>
 
-    <div class="progress">
-      <p id="progressText">Progress: 0%</p>
-      <div class="progress-bar">
-        <div id="progressFill"></div>
-      </div>
-    </div>
-  </div>
+  <footer>
+    <small>Built by Abinash SJ • CSE, Sri Sairam Institute of Technology</small>
+  </footer>
 
   <script src="script.js"></script>
 </body>
