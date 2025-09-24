@@ -8,39 +8,48 @@ function updateClock() {
 setInterval(updateClock, 1000);
 updateClock();
 
-// Add Task Logic
+// Elements
 const taskInput = document.getElementById("taskInput");
+const dateInput = document.getElementById("dateInput");
 const timeInput = document.getElementById("timeInput");
 const addBtn = document.getElementById("addBtn");
 const taskList = document.getElementById("taskList");
 
-// Load saved tasks from LocalStorage
+// Load tasks
 let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
 renderTasks();
 
+// Add Task
 addBtn.addEventListener("click", () => {
   const taskText = taskInput.value.trim();
+  const taskDate = dateInput.value;
   const taskTime = timeInput.value;
-  if (!taskText || !taskTime) {
-    alert("Please enter a task and select a time.");
+
+  if (!taskText || !taskDate || !taskTime) {
+    alert("Please enter a task, date, and time.");
     return;
   }
 
-  const task = { text: taskText, time: taskTime, done: false };
+  const task = { text: taskText, date: taskDate, time: taskTime, done: false };
   tasks.push(task);
   localStorage.setItem("tasks", JSON.stringify(tasks));
   renderTasks();
 
   taskInput.value = "";
+  dateInput.value = "";
   timeInput.value = "";
 });
 
+// Render Tasks
 function renderTasks() {
   taskList.innerHTML = "";
   tasks.forEach((task, index) => {
     const li = document.createElement("li");
     li.innerHTML = `
-      <span class="${task.done ? 'done' : ''}">${task.text} <small>@ ${formatTime(task.time)}</small></span>
+      <span class="${task.done ? 'done' : ''}">
+        ${task.text} 
+        <small>@ ${formatTime(task.time)} on ${formatDate(task.date)}</small>
+      </span>
       <div>
         <button onclick="toggleDone(${index})">✔</button>
         <button onclick="deleteTask(${index})">❌</button>
@@ -62,11 +71,16 @@ function deleteTask(index) {
   renderTasks();
 }
 
-// Format time to AM/PM
+// Helpers
 function formatTime(timeStr) {
   const [hour, minute] = timeStr.split(":");
   let h = parseInt(hour);
   const ampm = h >= 12 ? "PM" : "AM";
   h = h % 12 || 12;
   return `${h}:${minute} ${ampm}`;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
 }
